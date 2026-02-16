@@ -16,7 +16,7 @@ DevOps project: Serverless Health Check API with automated deployment pipeline o
 This project implements a serverless health check API with the following AWS components:
 
 - **API Gateway**: REST API with API key authentication and throttling
-- **Lambda Function**: Python 3.11 function with input validation
+- **Lambda Function**: Python 3.11 function in VPC with input validation
 - **DynamoDB**: NoSQL database with KMS Customer Managed Key encryption
 - **VPC**: Private subnets with DynamoDB VPC endpoint
 - **CloudWatch**: Centralized logging
@@ -70,7 +70,44 @@ aws configure
    - `AWS_SECRET_ACCESS_KEY`: Your AWS secret key
    - `AWS_REGION`: `us-east-1`
 
-### 3. Local Deployment (Optional)
+### 3. Configure GitHub Environments (Required for CI/CD)
+
+GitHub Environments provide deployment protection rules and are required for the production deployment approval workflow.
+
+#### Setup Production Environment
+1. Go to your GitHub repository
+2. Navigate to: **Settings → Environments**
+3. Click **New environment**
+4. Name it: `production`
+5. Under **Deployment protection rules**:
+   - Check **Required reviewers**
+   - Add yourself (or team members) as reviewers
+   - Optionally set **Wait timer** (e.g., 5 minutes)
+6. Click **Save protection rules**
+
+#### Setup Staging Environment
+1. Click **New environment**
+2. Name it: `staging`
+3. No protection rules needed (allows auto-deploy)
+4. Click **Create environment**
+
+**Why this matters**: 
+- The `production` environment requires manual approval before any deployment
+- The `staging` environment deploys automatically on push to staging branch
+- This adds an extra safety layer preventing accidental production deployments
+
+### 4. Create Staging Branch (Required for CI/CD)
+
+The CI/CD pipeline requires a `staging` branch for automatic deployments:
+
+```bash
+git checkout -b staging
+git push origin staging
+```
+
+**Note**: Push to `staging` branch triggers automatic deployment to staging environment.
+
+### 5. Local Deployment (Optional)
 
 #### Deploy Staging Environment
 ```bash
@@ -98,7 +135,7 @@ The GitHub Actions pipeline consists of three main jobs:
 - Executes on every push and pull request
 
 #### 2. Deploy to Staging
-- **Trigger**: Automatic on push to `main` or `staging` branches
+- **Trigger**: Automatic on push to `staging` branch only
 - **Steps**:
   1. Checkout code
   2. Setup Terraform
@@ -115,26 +152,28 @@ The GitHub Actions pipeline consists of three main jobs:
 
 ### Pipeline Workflow
 ```
-Push to main/staging
+Push to staging branch
     ↓
 Security Scan (tfsec + safety)
     ↓
 Deploy to Staging (automatic)
+
+Manual trigger for Production
     ↓
-Manual Approval
+Security Scan (tfsec + safety)
     ↓
-Deploy to Production (manual trigger)
+Deploy to Production (manual approval)
 ```
 
 ## Deployment
 
 ### Automatic Deployment (Staging)
 
-Push to the `main` or `staging` branch:
+Push to the `staging` branch:
 ```bash
 git add .
 git commit -m "your changes"
-git push origin main
+git push origin staging
 ```
 
 The pipeline will automatically:
@@ -144,12 +183,26 @@ The pipeline will automatically:
 
 ### Manual Deployment (Production)
 
+#### Step 1: Trigger the Workflow
 1. Go to **Actions** tab in GitHub
 2. Select **Deploy Infrastructure** workflow
-3. Click **Run workflow**
+3. Click **Run workflow** button (top right)
 4. Select `prod` from the environment dropdown
-5. Click **Run workflow**
-6. Approve the deployment in the **Environments** section
+5. Click **Run workflow** to confirm
+
+#### Step 2: Approve the Deployment
+1. Wait for the workflow to reach the production job
+2. You'll see a yellow "Waiting" status
+3. Click **Review deployments**
+4. Check the `production` environment
+5. Click **Approve and deploy**
+
+#### Step 3: Monitor Deployment
+- Watch the Terraform apply logs in real-time
+- Deployment takes ~3-5 minutes
+- Once complete, test the production endpoint
+
+**Note**: Only users configured as reviewers in the production environment can approve deployments.
 
 ## Testing
 
@@ -271,9 +324,10 @@ Expected response:
 
 ### CI/CD Strategy
 
+- **Branch separation**: `staging` branch deploys to staging, `main` is production-ready code
 - **Atomic commits**: Each commit represents a logical unit of work
 - **Security-first**: Scans run before any deployment
-- **Staging-first**: Changes deploy to staging automatically
+- **Staging isolation**: Only staging branch triggers staging deployment
 - **Production protection**: Manual approval required for prod
 
 ## Project Structure
@@ -342,6 +396,7 @@ aws lambda get-policy --function-name staging-health-check-function
 
 ### Bonus Features Implemented
 - Customer Managed Key (KMS) with automatic rotation
+- Lambda in dedicated VPC with private subnets
 - DynamoDB VPC endpoint for secure access
 - API Key authentication with usage plans and rate limiting
 
