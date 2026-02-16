@@ -1,7 +1,7 @@
 resource "aws_kms_key" "dynamodb" {
   description             = "${var.environment} DynamoDB encryption key"
   deletion_window_in_days = 7
-  enable_key_rotation     = true
+  enable_key_rotation     = false
 
   tags = {
     Name = "${var.environment}-dynamodb-key"

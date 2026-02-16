@@ -21,7 +21,7 @@ This project implements a serverless health check API with the following AWS com
 - **VPC**: Private subnets with DynamoDB VPC endpoint
 - **CloudWatch**: Centralized logging
 - **IAM**: Least-privilege roles (no wildcards)
-- **KMS**: Customer Managed Key with automatic rotation
+- **KMS**: Customer Managed Key for DynamoDB encryption
 
 ### Resource Naming Convention
 All resources follow: `{environment}-{resource}-{name}`
@@ -217,7 +217,6 @@ Expected response:
 
 #### Encryption Everywhere
 - DynamoDB table uses Customer Managed Key (CMK) in KMS
-- Automatic key rotation enabled
 - Enhanced security over AWS-managed keys
 
 #### Least Privilege IAM
@@ -341,7 +340,7 @@ aws lambda get-policy --function-name staging-health-check-function
 - Dependency scanning (safety)
 
 ### Bonus Features Implemented
-- Customer Managed Key (KMS) with automatic rotation
+- Customer Managed Key (KMS) for DynamoDB encryption
 - Lambda in dedicated VPC with private subnets
 - DynamoDB VPC endpoint for secure access
 - API Key authentication with usage plans and rate limiting

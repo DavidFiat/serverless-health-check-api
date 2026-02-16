@@ -71,6 +71,11 @@ jobs:
         run: terraform init
         working-directory: terraform
 
+      - name: Terraform Destroy (cleanup)
+        run: terraform destroy -var-file="staging.tfvars" -auto-approve
+        working-directory: terraform
+        continue-on-error: true
+
       - name: Terraform Plan
         run: terraform plan -var-file="staging.tfvars" -out=tfplan
         working-directory: terraform
