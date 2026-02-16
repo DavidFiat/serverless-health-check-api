@@ -51,4 +51,22 @@ resource "aws_iam_role_policy" "lambda_logs" {
   })
 }
 
+resource "aws_iam_role_policy" "lambda_kms" {
+  name = "${var.environment}-lambda-kms-policy"
+  role = aws_iam_role.lambda_execution.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "kms:Decrypt",
+        "kms:DescribeKey",
+        "kms:GenerateDataKey"
+      ]
+      Resource = aws_kms_key.dynamodb.arn
+    }]
+  })
+}
+
 data "aws_caller_identity" "current" {}
