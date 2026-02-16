@@ -12,3 +12,9 @@ output "lambda_function_name" {
   description = "Lambda function name"
   value       = aws_lambda_function.health_check.function_name
 }
+
+output "api_key" {
+  description = "API Key for authentication"
+  value       = aws_api_gateway_api_key.main.value
+  sensitive   = true
+}
