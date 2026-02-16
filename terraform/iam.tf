@@ -51,4 +51,22 @@ resource "aws_iam_role_policy" "lambda_logs" {
   })
 }
 
+resource "aws_iam_role_policy" "lambda_vpc" {
+  name = "${var.environment}-lambda-vpc-policy"
+  role = aws_iam_role.lambda_execution.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "ec2:CreateNetworkInterface",
+        "ec2:DescribeNetworkInterfaces",
+        "ec2:DeleteNetworkInterface"
+      ]
+      Resource = "*"
+    }]
+  })
+}
+
 data "aws_caller_identity" "current" {}
