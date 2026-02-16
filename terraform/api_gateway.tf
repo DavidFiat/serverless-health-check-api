@@ -70,13 +70,19 @@ resource "aws_api_gateway_stage" "main" {
   rest_api_id   = aws_api_gateway_rest_api.main.id
   stage_name    = var.environment
 
-  throttle_settings {
-    rate_limit  = var.api_throttle_rate_limit
-    burst_limit = var.api_throttle_burst_limit
-  }
-
   tags = {
     Name = "${var.environment}-health-check-api-stage"
+  }
+}
+
+resource "aws_api_gateway_method_settings" "main" {
+  rest_api_id = aws_api_gateway_rest_api.main.id
+  stage_name  = aws_api_gateway_stage.main.stage_name
+  method_path = "*/*"
+
+  settings {
+    throttling_rate_limit  = var.api_throttle_rate_limit
+    throttling_burst_limit = var.api_throttle_burst_limit
   }
 }
 
