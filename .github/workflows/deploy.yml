@@ -120,7 +120,8 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Terraform Init
-        run: terraform init
+        run: |
+          terraform init -backend-config="key=prod/terraform.tfstate"
         working-directory: terraform
 
       - name: Terraform Plan

@@ -8,6 +8,24 @@ resource "aws_vpc" "main" {
   }
 }
 
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.main.id
+
+  tags = {
+    Name = "${var.environment}-private-rt"
+  }
+}
+
+resource "aws_route_table_association" "private_a" {
+  subnet_id      = aws_subnet.private_a.id
+  route_table_id = aws_route_table.private.id
+}
+
+resource "aws_route_table_association" "private_b" {
+  subnet_id      = aws_subnet.private_b.id
+  route_table_id = aws_route_table.private.id
+}
+
 resource "aws_subnet" "private_a" {
   vpc_id            = aws_vpc.main.id
   cidr_block        = "10.0.1.0/24"
@@ -48,7 +66,7 @@ resource "aws_security_group" "lambda" {
 resource "aws_vpc_endpoint" "dynamodb" {
   vpc_id          = aws_vpc.main.id
   service_name    = "com.amazonaws.${var.aws_region}.dynamodb"
-  route_table_ids = [aws_vpc.main.default_route_table_id]
+  route_table_ids = [aws_route_table.private.id]
 
   tags = {
     Name = "${var.environment}-dynamodb-endpoint"
