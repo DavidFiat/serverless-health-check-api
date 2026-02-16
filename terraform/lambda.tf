@@ -14,6 +14,11 @@ resource "aws_lambda_function" "health_check" {
   memory_size     = var.lambda_memory
   timeout         = var.lambda_timeout
 
+  vpc_config {
+    subnet_ids         = [aws_subnet.private_a.id, aws_subnet.private_b.id]
+    security_group_ids = [aws_security_group.lambda.id]
+  }
+
   environment {
     variables = {
       DYNAMODB_TABLE = aws_dynamodb_table.requests.name
