@@ -299,11 +299,13 @@ Expected response:
 
 ### Infrastructure Choices
 
-#### Why HTTP API (not REST API)?
-- Simpler configuration
-- Lower cost (~70% cheaper)
-- Built-in throttling support
-- Sufficient for this use case
+#### Why REST API (not HTTP API)?
+- Native API Key authentication support
+- Usage plans and rate limiting per API key
+- More mature feature set for enterprise requirements
+- Better integration with API Gateway stages
+
+**Note**: While HTTP API is cheaper (~70% cost reduction), REST API was chosen because the project requires API key authentication, which is not natively supported in HTTP API v2.
 
 #### Why DynamoDB?
 - Serverless (no server management)
