@@ -1,6 +1,6 @@
 output "api_endpoint" {
   description = "API Gateway endpoint URL"
-  value       = aws_apigatewayv2_stage.main.invoke_url
+  value       = "${aws_api_gateway_stage.main.invoke_url}/health"
 }
 
 output "dynamodb_table_name" {

@@ -15,7 +15,7 @@ DevOps project: Serverless Health Check API with automated deployment pipeline o
 
 This project implements a serverless health check API with the following AWS components:
 
-- **API Gateway**: HTTP API with throttling, request validation, and API key authentication
+- **API Gateway**: REST API with API key authentication and throttling
 - **Lambda Function**: Python 3.11 function in VPC with input validation
 - **DynamoDB**: NoSQL database with KMS Customer Managed Key encryption
 - **VPC**: Private subnets with DynamoDB VPC endpoint
@@ -163,7 +163,7 @@ terraform output api_endpoint
 
 #### Test with cURL (POST with API Key)
 ```bash
-curl -X POST "https://YOUR_API_ENDPOINT/health" \
+curl -X POST "https://YOUR_API_ENDPOINT" \
   -H "Content-Type: application/json" \
   -H "x-api-key: YOUR_API_KEY" \
   -d '{"payload": "Hello from health check"}'
@@ -343,9 +343,8 @@ aws lambda get-policy --function-name staging-health-check-function
 ### Bonus Features Implemented
 - Customer Managed Key (KMS) with automatic rotation
 - Lambda in dedicated VPC with private subnets
-- API Gateway request validation with JSON schema
+- DynamoDB VPC endpoint for secure access
 - API Key authentication with usage plans and rate limiting
-- API Key authentication - Can be added
 
 ## Author
 
