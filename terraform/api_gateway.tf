@@ -7,6 +7,22 @@ resource "aws_apigatewayv2_api" "main" {
   }
 }
 
+resource "aws_apigatewayv2_model" "health_request" {
+  api_id       = aws_apigatewayv2_api.main.id
+  name         = "HealthRequest"
+  content_type = "application/json"
+
+  schema = jsonencode({
+    type = "object"
+    required = ["payload"]
+    properties = {
+      payload = {
+        type = "string"
+      }
+    }
+  })
+}
+
 resource "aws_apigatewayv2_stage" "main" {
   api_id      = aws_apigatewayv2_api.main.id
   name        = "$default"
