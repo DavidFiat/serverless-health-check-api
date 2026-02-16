@@ -9,7 +9,8 @@ resource "aws_dynamodb_table" "requests" {
   }
 
   server_side_encryption {
-    enabled = true
+    enabled     = true
+    kms_key_arn = aws_kms_key.dynamodb.arn
   }
 
   point_in_time_recovery {
