@@ -88,9 +88,12 @@ jobs:
       - name: Test Health Endpoint
         run: |
           sleep 10
-          curl -X POST "${{ steps.endpoint.outputs.api_url }}/health" \
+          API_KEY=$(terraform output -raw api_key)
+          curl -X POST "${{ steps.endpoint.outputs.api_url }}" \
             -H "Content-Type: application/json" \
+            -H "x-api-key: $API_KEY" \
             -d '{"payload": "test from CI/CD"}'
+        working-directory: terraform
 
   deploy-prod:
     name: Deploy to Production
